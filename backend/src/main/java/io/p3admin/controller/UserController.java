@@ -31,4 +31,6 @@ public class UserController {
     Page<Permission> getPermissions(@RequestParam int page, @RequestParam int pageSize) {
         return userService.getPermissions(page, pageSize);
     }
+
+    // TODO refresh token endpoint
 }
