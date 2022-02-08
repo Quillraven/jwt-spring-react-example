@@ -3,6 +3,7 @@ package io.p3admin.model.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -15,10 +16,12 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     private String email;
     private String address;
     private boolean enabled = true;
+    private LocalDateTime createdAt = LocalDateTime.now();
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
@@ -88,6 +91,14 @@ public class User {
         this.enabled = enabled;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
@@ -100,12 +111,12 @@ public class User {
     }
 
     @JsonIgnore
-    public String[] getSpringPermissions() {
+    public String[] getSpringAuthorities() {
         return roles.stream()
                 .map(Role::getPermissions)
                 .flatMap(Set::stream)
                 .distinct()
-                .map(Permission::getName)
+                .map(Permission::getSpringAuthority)
                 .toArray(String[]::new);
     }
 

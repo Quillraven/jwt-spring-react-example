@@ -21,5 +21,5 @@ public interface UserService extends UserDetailsService {
 
     void addRoleToUser(String username, String roleName);
 
-    void addPermissionToRole(String roleName, String permissionName);
+    void addPermissionToRole(String roleName, String domainObject, Permission.Privilege privilege);
 }

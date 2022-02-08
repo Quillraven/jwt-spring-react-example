@@ -9,6 +9,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static io.p3admin.model.domain.Permission.Privilege.WRITE;
+import static io.p3admin.model.domain.Permission.getSpringAuthority;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -27,8 +30,8 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/roles").hasAuthority("user:write")
-                .antMatchers("/api/v1/permissions").hasAuthority("user:write")
+                .antMatchers("/api/v1/roles").hasAuthority(getSpringAuthority("User", WRITE))
+                .antMatchers("/api/v1/permissions").hasAuthority(getSpringAuthority("User", WRITE))
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

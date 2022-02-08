@@ -1,21 +1,33 @@
 package io.p3admin.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Objects;
 
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainObject", "privilege"}))
 @Entity
 public class Permission {
+    public enum Privilege {
+        READ, WRITE, DELETE
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(unique = true, nullable = false)
-    private String name;
+    @Column(nullable = false)
+    private String domainObject;
+
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private Privilege privilege;
 
     public Permission() {
     }
 
-    public Permission(String name) {
-        this.name = name;
+    public Permission(String domainObject, Privilege privilege) {
+        this.domainObject = domainObject;
+        this.privilege = privilege;
     }
 
     public Long getId() {
@@ -26,12 +38,29 @@ public class Permission {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getDomainObject() {
+        return domainObject;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDomainObject(String name) {
+        this.domainObject = name;
+    }
+
+    public Privilege getPrivilege() {
+        return privilege;
+    }
+
+    public void setPrivilege(Privilege privilege) {
+        this.privilege = privilege;
+    }
+
+    @JsonIgnore
+    public String getSpringAuthority() {
+        return getSpringAuthority(domainObject, privilege);
+    }
+
+    public static String getSpringAuthority(String domainObject, Privilege privilege) {
+        return domainObject + ":" + privilege.name();
     }
 
     @Override
@@ -39,19 +68,20 @@ public class Permission {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Permission that = (Permission) o;
-        return name.equals(that.name);
+        return domainObject.equals(that.domainObject) && privilege == that.privilege;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(domainObject, privilege);
     }
 
     @Override
     public String toString() {
         return "Permission{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", domainObject='" + domainObject + '\'' +
+                ", privilege=" + privilege +
                 '}';
     }
 }

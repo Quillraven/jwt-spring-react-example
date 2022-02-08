@@ -24,8 +24,8 @@ public class BackendApplication {
     public CommandLineRunner roleAndPermissionLoader(UserService userService) {
         // TODO remove dummy data loader when we have a development db with test data
         return args -> {
-            var permissionUserRead = new Permission("user:read");
-            var permissionUserWrite = new Permission("user:write");
+            var permissionUserRead = new Permission("User", Permission.Privilege.READ);
+            var permissionUserWrite = new Permission("User", Permission.Privilege.WRITE);
             userService.savePermission(permissionUserRead);
             userService.savePermission(permissionUserWrite);
 

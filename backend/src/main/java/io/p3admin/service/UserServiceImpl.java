@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         .password(user.getPassword())
                         .disabled(!user.isEnabled())
                         .roles(user.getSpringRoles())
-                        .authorities(user.getSpringPermissions())
+                        .authorities(user.getSpringAuthorities())
                         .build()
                 )
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User " + username + " not found"));
@@ -106,17 +106,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void addPermissionToRole(String roleName, String permissionName) {
-        log.debug("Adding permission {} to role {}", permissionName, roleName);
-        if (roleName == null || roleName.isBlank() || permissionName == null || permissionName.isBlank()) {
-            throw new ResponseStatusException(BAD_REQUEST, "roleName and permissionName must be provided");
+    public void addPermissionToRole(String roleName, String domainObject, Permission.Privilege privilege) {
+        log.debug("Adding privilege {} for domain {} to role {}", privilege, domainObject, roleName);
+        if (roleName == null || roleName.isBlank() || domainObject == null || domainObject.isBlank() || privilege == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "roleName, domainObject and privilege must be provided");
         }
 
         var role = roleRepo.findByName(roleName)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role " + roleName + " not found"));
 
-        var permission = permissionRepo.findByName(permissionName)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Permission " + permissionName + " not found"));
+        var permission = permissionRepo.findByDomainObjectAndPrivilege(domainObject, privilege)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Permission " + domainObject + ":" + privilege + " not found"));
 
         role.getPermissions().add(permission);
     }
