@@ -6,6 +6,7 @@ import io.p3admin.filter.JwtAuthenticationFilter;
 import io.p3admin.filter.JwtAuthorizationFilter;
 import io.p3admin.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,9 +32,8 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder pwdEncoder;
 
     @Bean
-    public Algorithm jwtAlgorithm() {
-        // TODO get secret from database
-        return Algorithm.HMAC256("SECRET");
+    public Algorithm jwtAlgorithm(@Value("${io.p3admin.secret}") String secret) {
+        return Algorithm.HMAC256(secret);
     }
 
     @Bean
