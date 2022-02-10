@@ -32,6 +32,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PermissionRepository permissionRepo;
     private final PasswordEncoder pwdEncoder;
 
+    /**
+     * This method is called by the {@link io.p3admin.filter.JwtAuthenticationFilter#attemptAuthentication} method
+     * when a user tries to log in.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.debug("Loading user by username {}", username);

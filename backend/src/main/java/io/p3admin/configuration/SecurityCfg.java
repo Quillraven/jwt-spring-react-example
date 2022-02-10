@@ -2,8 +2,8 @@ package io.p3admin.configuration;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.p3admin.filter.AppAuthenticationFilter;
-import io.p3admin.filter.AppAuthorizationFilter;
+import io.p3admin.filter.JwtAuthenticationFilter;
+import io.p3admin.filter.JwtAuthorizationFilter;
 import io.p3admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +25,7 @@ import static io.p3admin.model.domain.Permission.getSpringAuthority;
 @RequiredArgsConstructor
 public class SecurityCfg extends WebSecurityConfigurerAdapter {
     public static final String JWT_CLAIM_KEY_ROLES = "roles";
+    public static final String LOGIN_END_POINT = "/api/v1/login";
 
     private final UserService userService;
     private final PasswordEncoder pwdEncoder;
@@ -41,7 +42,6 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(pwdEncoder);
@@ -52,9 +52,9 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
         var authMgr = getApplicationContext().getBean(AuthenticationManager.class);
         var algorithm = getApplicationContext().getBean(Algorithm.class);
         var objectMapper = getApplicationContext().getBean(ObjectMapper.class);
-        var authFilter = new AppAuthenticationFilter(authMgr, algorithm, objectMapper);
+        var authenticationFilter = new JwtAuthenticationFilter(authMgr, algorithm, objectMapper);
         // set custom login URL instead of Spring's /login
-        authFilter.setFilterProcessesUrl("/api/v1/login");
+        authenticationFilter.setFilterProcessesUrl(LOGIN_END_POINT);
 
         http
                 .csrf().disable()
@@ -65,7 +65,7 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/v1/permissions").hasAuthority(getSpringAuthority("User", WRITE))
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(authFilter)
-                .addFilterBefore(new AppAuthorizationFilter(algorithm), UsernamePasswordAuthenticationFilter.class);
+                .addFilter(authenticationFilter)
+                .addFilterBefore(new JwtAuthorizationFilter(algorithm, objectMapper), UsernamePasswordAuthenticationFilter.class);
     }
 }

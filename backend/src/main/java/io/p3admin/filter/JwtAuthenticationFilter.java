@@ -26,7 +26,7 @@ import static io.p3admin.configuration.SecurityCfg.JWT_CLAIM_KEY_ROLES;
 
 @Slf4j
 @RequiredArgsConstructor
-public class AppAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     // one second = 1000; one minute = 1000 * 60
     private static final int ACCESS_TOKEN_VALID_DURATION = 1000 * 60 * 10;
     private static final int REFRESH_TOKEN_VALID_DURATION = 1000 * 60 * 30;
@@ -45,7 +45,8 @@ public class AppAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     /**
-     * Create JWT token on successful login
+     * Create JWT token on successful login.
+     * This method is called when {@link io.p3admin.service.UserService#loadUserByUsername} returns a valid user.
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
