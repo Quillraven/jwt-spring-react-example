@@ -9,6 +9,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService extends UserDetailsService {
     Page<User> getUsers(int page, int pageSize);
 
+    User getUser(String username);
+
+    User getUserOrNull(String username);
+
     User saveUser(User user);
 
     Page<Role> getRoles(int page, int pageSize);

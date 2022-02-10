@@ -4,6 +4,7 @@ import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
 import io.p3admin.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Set;
 
 @SpringBootApplication
+@Slf4j
 public class BackendApplication {
     @Bean
     public PasswordEncoder pwdEncoder() {
@@ -21,9 +23,15 @@ public class BackendApplication {
     }
 
     @Bean
-    public CommandLineRunner roleAndPermissionLoader(UserService userService) {
-        // TODO remove dummy data loader when we have a development db with test data
+    public CommandLineRunner createDefaultPermissionsAndUsers(UserService userService) {
         return args -> {
+            if (userService.getUserOrNull("admin") != null) {
+                // defaults already created -> do nothing
+                log.info("Default permissions and users already created");
+                return;
+            }
+
+            log.info("Creating default permissions and users");
             var permissionUserRead = new Permission("User", Permission.Privilege.READ);
             var permissionUserWrite = new Permission("User", Permission.Privilege.WRITE);
             userService.savePermission(permissionUserRead);

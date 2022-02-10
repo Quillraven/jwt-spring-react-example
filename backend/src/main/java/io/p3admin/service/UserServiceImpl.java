@@ -58,6 +58,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public User getUser(String username) {
+        log.debug("Get user with username {}", username);
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User " + username + " not found"));
+    }
+
+    @Override
+    public User getUserOrNull(String username) {
+        log.debug("Get user or null with username {}", username);
+        return userRepo.findByUsername(username)
+                .orElse(null);
+    }
+
+    @Override
     public User saveUser(User user) {
         log.debug("Saving user: {}", user);
 
@@ -100,9 +114,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new ResponseStatusException(BAD_REQUEST, "username and roleName must be provided");
         }
 
-        var user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User " + username + " not found"));
-
+        var user = getUser(username);
         var role = roleRepo.findByName(roleName)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role " + roleName + " not found"));
 
