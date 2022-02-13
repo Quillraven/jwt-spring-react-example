@@ -6,7 +6,12 @@ import io.p3admin.model.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public interface UserService extends UserDetailsService {
+    void refreshToken(HttpServletRequest request, HttpServletResponse response);
+
     Page<User> getUsers(int page, int pageSize);
 
     User getUser(String username);

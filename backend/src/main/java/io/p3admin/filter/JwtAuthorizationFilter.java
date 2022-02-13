@@ -33,13 +33,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final Algorithm algorithm;
     private final ObjectMapper objectMapper;
 
+    public static boolean isInvalidAuthorizationRequest(HttpServletRequest request) {
+        var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authHeader == null || !authHeader.startsWith(AUTH_PREFIX);
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         var path = request.getServletPath();
-        var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        // do not run filter for login page or if authentication format is missing or wrong
-        return LOGIN_END_POINT.equals(path) || authHeader == null || !authHeader.startsWith(AUTH_PREFIX);
+        // do not run filter for login/refresh-token page or if authentication format is missing or wrong
+        return LOGIN_END_POINT.equals(path) || ("/api/v1/refresh-token").equals(path) || isInvalidAuthorizationRequest(request);
     }
 
     private void writeErrorResponse(HttpServletResponse response, HttpStatus status, String text) throws IOException {
@@ -50,11 +54,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         );
     }
 
+    public static String getJwtToken(HttpServletRequest request) {
+        var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authHeader.substring(AUTH_PREFIX.length());
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-            var token = authHeader.substring(AUTH_PREFIX.length());
+            var token = getJwtToken(request);
             var jwtVerifier = JWT.require(algorithm).build();
             var decodedJwt = jwtVerifier.verify(token);
             var username = decodedJwt.getSubject();

@@ -6,7 +6,6 @@ import io.p3admin.filter.JwtAuthenticationFilter;
 import io.p3admin.filter.JwtAuthorizationFilter;
 import io.p3admin.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +16,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static io.p3admin.model.domain.Permission.Privilege.WRITE;
 import static io.p3admin.model.domain.Permission.getSpringAuthority;
@@ -32,11 +34,6 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder pwdEncoder;
 
     @Bean
-    public Algorithm jwtAlgorithm(@Value("${io.p3admin.secret}") String secret) {
-        return Algorithm.HMAC256(secret);
-    }
-
-    @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
@@ -45,6 +42,13 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(pwdEncoder);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        var cfgSrc = new UrlBasedCorsConfigurationSource();
+        cfgSrc.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        return cfgSrc;
     }
 
     @Override
@@ -57,10 +61,13 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
         authenticationFilter.setFilterProcessesUrl(LOGIN_END_POINT);
 
         http
+                .cors()
+                .and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/api/v1/refresh-token").permitAll()
                 .antMatchers("/api/v1/roles").hasAuthority(getSpringAuthority("User", WRITE))
                 .antMatchers("/api/v1/permissions").hasAuthority(getSpringAuthority("User", WRITE))
                 .anyRequest().authenticated()

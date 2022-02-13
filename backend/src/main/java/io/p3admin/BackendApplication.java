@@ -1,10 +1,12 @@
 package io.p3admin;
 
+import com.auth0.jwt.algorithms.Algorithm;
 import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
 import io.p3admin.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,6 +22,11 @@ public class BackendApplication {
     @Bean
     public PasswordEncoder pwdEncoder() {
         return new BCryptPasswordEncoder(10);
+    }
+
+    @Bean
+    public Algorithm jwtAlgorithm(@Value("${io.p3admin.secret}") String secret) {
+        return Algorithm.HMAC256(secret);
     }
 
     @Bean

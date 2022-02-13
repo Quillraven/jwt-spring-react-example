@@ -1,5 +1,8 @@
 package io.p3admin.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
@@ -17,8 +20,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.List;
 
+import static io.p3admin.filter.JwtAuthenticationFilter.createAndAddJwtTokens;
+import static io.p3admin.filter.JwtAuthorizationFilter.getJwtToken;
+import static io.p3admin.filter.JwtAuthorizationFilter.isInvalidAuthorizationRequest;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -31,6 +40,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final RoleRepository roleRepo;
     private final PermissionRepository permissionRepo;
     private final PasswordEncoder pwdEncoder;
+    private final Algorithm algorithm;
+    private final ObjectMapper objectMapper;
 
     /**
      * This method is called by the {@link io.p3admin.filter.JwtAuthenticationFilter#attemptAuthentication} method
@@ -49,6 +60,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         .build()
                 )
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User " + username + " not found"));
+    }
+
+    @Override
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        if (isInvalidAuthorizationRequest(request)) {
+            throw new ResponseStatusException(BAD_REQUEST, "Authorization header missing or wrong. Format is: 'Bearer TOKEN'");
+        }
+
+        try {
+            var token = getJwtToken(request);
+            var jwtVerifier = JWT.require(algorithm).build();
+            // check that refresh token is valid and not expired
+            var decodedJwt = jwtVerifier.verify(token);
+            // token was valid -> get user and return new tokens
+            var username = decodedJwt.getSubject();
+            var user = getUser(username);
+
+            createAndAddJwtTokens(
+                    user.getUsername(),
+                    List.of(user.getSpringAuthorities()),
+                    algorithm,
+                    objectMapper,
+                    request,
+                    response
+            );
+        } catch (Exception e) {
+            throw new ResponseStatusException(BAD_REQUEST, "Could not refresh token", e);
+        }
     }
 
     @Override

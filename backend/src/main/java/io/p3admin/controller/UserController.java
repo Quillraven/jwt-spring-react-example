@@ -6,10 +6,10 @@ import io.p3admin.model.domain.User;
 import io.p3admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -32,5 +32,8 @@ public class UserController {
         return userService.getPermissions(page, pageSize);
     }
 
-    // TODO refresh token endpoint
+    @PostMapping("/refresh-token")
+    void refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        userService.refreshToken(request, response);
+    }
 }

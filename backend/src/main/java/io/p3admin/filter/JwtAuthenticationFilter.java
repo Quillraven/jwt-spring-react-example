@@ -19,17 +19,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.p3admin.configuration.SecurityCfg.JWT_CLAIM_KEY_ROLES;
+import static java.util.Map.entry;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     // one second = 1000; one minute = 1000 * 60
-    private static final int ACCESS_TOKEN_VALID_DURATION = 1000 * 60 * 10;
-    private static final int REFRESH_TOKEN_VALID_DURATION = 1000 * 60 * 30;
+    private static final int ACCESS_TOKEN_VALID_DURATION = 1000 * 60 * 5;
+    private static final int REFRESH_TOKEN_VALID_DURATION = 1000 * 60 * 15;
 
     private final AuthenticationManager authMgr;
     private final Algorithm algorithm;
@@ -44,23 +46,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return authMgr.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 
-    /**
-     * Create JWT token on successful login.
-     * This method is called when {@link io.p3admin.service.UserService#loadUserByUsername} returns a valid user.
-     */
-    @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        var user = (User) authResult.getPrincipal();
-
+    public static void createAndAddJwtTokens(
+            String username,
+            List<String> authorities,
+            Algorithm algorithm,
+            ObjectMapper objectMapper,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
         var accessToken = JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_DURATION))
                 .withIssuer(request.getRequestURL().toString())
-                .withClaim(JWT_CLAIM_KEY_ROLES, user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .withClaim(JWT_CLAIM_KEY_ROLES, authorities)
                 .sign(algorithm);
 
         var refreshToken = JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_DURATION))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
@@ -68,7 +70,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(
                 response.getOutputStream(),
-                Map.of("access-token", accessToken, "refresh-token", refreshToken)
+                Map.ofEntries(
+                        entry("access-token", accessToken),
+                        entry("refresh-token", refreshToken)
+                )
         );
+    }
+
+    /**
+     * Create JWT token on successful login.
+     * This method is called when {@link io.p3admin.service.UserService#loadUserByUsername} returns a valid user.
+     */
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
+        var user = (User) authResult.getPrincipal();
+        var authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        createAndAddJwtTokens(user.getUsername(), authorities, algorithm, objectMapper, request, response);
     }
 }
