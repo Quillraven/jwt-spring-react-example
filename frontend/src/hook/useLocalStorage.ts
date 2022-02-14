@@ -8,8 +8,14 @@ const useLocalStorage = <S>(key: string, defaultValue: S) => {
 
     const setValue = (value: S) => {
         const valueToStore = value instanceof Function ? value(storedValue) : value
+        if (valueToStore) {
+            // value to store -> add to local storage
+            localStorage.setItem(key, JSON.stringify(valueToStore))
+        } else {
+            // no value to store -> remove from local storage
+            localStorage.removeItem(key)
+        }
         setStoredValue(valueToStore)
-        localStorage.setItem(key, JSON.stringify(valueToStore))
     }
 
     return [storedValue, setValue]

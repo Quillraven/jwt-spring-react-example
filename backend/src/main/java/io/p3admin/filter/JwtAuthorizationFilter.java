@@ -75,10 +75,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             );
             SecurityContextHolder.getContext().setAuthentication(authToken);
         } catch (TokenExpiredException e) {
-            log.error("JWT token expired", e);
+            log.error("JWT token expired");
             writeErrorResponse(response, HttpStatus.UNAUTHORIZED, "Your JWT token is expired");
         } catch (JWTVerificationException e) {
-            log.error("JWT token not verified", e);
+            log.error("JWT token not verified");
             writeErrorResponse(response, HttpStatus.BAD_REQUEST, "Could not decode JWT token");
         } finally {
             filterChain.doFilter(request, response);

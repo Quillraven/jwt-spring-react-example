@@ -1,6 +1,17 @@
 import {useEffect, useState} from "react";
-import axios from "axios"
-import {Box, Checkbox, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {
+    Box,
+    Button,
+    Checkbox,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
+} from "@mui/material";
+import {useAuth} from "../context/AuthContext";
 
 interface IUser {
     username: string
@@ -12,23 +23,23 @@ interface IUser {
 
 const AppUsers = () => {
     const [users, setUsers] = useState<IUser[]>([]);
+    const {api, logout} = useAuth()
 
     useEffect(() => {
-            const fetchData = async () => {
-                const response = await axios.get("/users?page=0&pageSize=50")
+            (async () => {
+                const response = await api.get("/users?page=0&pageSize=50")
                 if (response.data?.content) {
                     const userData: IUser[] = response.data.content
                     userData.forEach(it => it.createdAt = new Date(it.createdAt))
                     setUsers(userData)
                 }
-            }
-            fetchData()
+            })()
         },
-        []
+        [api]
     )
 
     return (
-        <Box sx={{display: "flex"}}>
+        <Box sx={{display: "flex", flexDirection: "column", alignItems: "flex-start"}}>
             <Paper sx={{display: "flex", m: 2}}>
                 <TableContainer>
                     <Table
@@ -66,6 +77,8 @@ const AppUsers = () => {
                     </Table>
                 </TableContainer>
             </Paper>
+
+            <Button variant={"outlined"} color={"primary"} onClick={logout} sx={{m: 2}}>Logout</Button>
         </Box>
     )
 }

@@ -64,6 +64,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        log.debug("Refresh JWT Token");
         if (isInvalidAuthorizationRequest(request)) {
             throw new ResponseStatusException(BAD_REQUEST, "Authorization header missing or wrong. Format is: 'Bearer TOKEN'");
         }

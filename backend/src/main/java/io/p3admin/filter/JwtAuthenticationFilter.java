@@ -54,6 +54,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
+        log.info("Creating new JWT Token for username {}", username);
+
         var accessToken = JWT.create()
                 .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_DURATION))
