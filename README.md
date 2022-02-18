@@ -7,14 +7,12 @@ This is an example application showing how to use JWT authentication within a Re
 ### Backend
 
 This application uses [MariaDB](https://mariadb.org/) as a database. To run it you can use
-[Docker](https://www.docker.com/) by creating a container that is bound to port 3306 running on your localhost. Also,
-you need to create a database in it with the name **p3admin_db**:
-
-```
-1) mysql -u YOUR_USER -p
-
-2) CREATE DATABASE p3admin_db;
-```
+[Docker](https://www.docker.com/). Run the `docker-compose.yml` file in the root folder which will setup
+everything automatically:
+- download mariadb image
+- setup root password of mysql admin user (root)
+- create database (p3admin_db)
+- bind container to port 3306
 
 When you run the `BackendApplication` then a `CommandLineRunner` is executed that creates some default permissions,
 roles and users:
