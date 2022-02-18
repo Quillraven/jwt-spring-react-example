@@ -3,9 +3,10 @@ package io.p3admin.model.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainObject", "privilege"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domain_object", "privilege"}))
 @Entity
 public class Permission {
     public enum Privilege {
@@ -15,7 +16,9 @@ public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(nullable = false)
+
+    @Column(nullable = false, name = "domain_object")
+    @NotBlank(message = "domain_object must be non blank")
     private String domainObject;
 
     @Column(nullable = false)

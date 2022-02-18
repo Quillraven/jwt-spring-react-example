@@ -1,6 +1,7 @@
 package io.p3admin.model.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -10,8 +11,11 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(unique = true, nullable = false)
+    @NotBlank
     private String name;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Permission> permissions = new HashSet<>();
 

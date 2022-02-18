@@ -1,8 +1,11 @@
 package io.p3admin.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,15 +16,27 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(unique = true, nullable = false)
+    @NotBlank
     private String username;
+
     @Column(nullable = false)
     @JsonIgnore
+    @NotBlank
     private String password;
+
+    @Email
     private String email;
+
     private String address;
+
     private boolean enabled = true;
-    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
