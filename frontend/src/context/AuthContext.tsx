@@ -84,7 +84,7 @@ const AuthProvider: React.FC = ({children}) => {
         }
 
         const instance = axios.create({
-            baseURL: "http://localhost:8080/api/v1",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
             headers: {"Content-Type": "application/json"},
         })
 
