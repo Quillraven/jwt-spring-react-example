@@ -1,17 +1,7 @@
 import {useEffect, useState} from "react";
-import {
-    Box,
-    Button,
-    Checkbox,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow
-} from "@mui/material";
+import {Box, Button, Paper} from "@mui/material";
 import {useAuth} from "../context/AuthContext";
+import AppTable from "./AppTable";
 
 interface IUser {
     username: string
@@ -41,41 +31,7 @@ const AppUsers = () => {
     return (
         <Box sx={{display: "flex", flexDirection: "column", alignItems: "flex-start"}}>
             <Paper sx={{display: "flex", m: 2}}>
-                <TableContainer>
-                    <Table
-                        sx={{minWidth: 750}}
-                        aria-labelledby={"User-Table"}
-                        size={"small"}
-                    >
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Enabled</TableCell>
-                                <TableCell>Username</TableCell>
-                                <TableCell>E-Mail</TableCell>
-                                <TableCell>Address</TableCell>
-                                <TableCell>Created At</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {
-                                users.map(it => {
-                                    const createdTime = it.createdAt
-                                    return (
-                                        <TableRow key={it.username}>
-                                            <TableCell padding={"checkbox"}>
-                                                <Checkbox color={"primary"} checked={it.enabled} disabled={true}/>
-                                            </TableCell>
-                                            <TableCell>{it.username}</TableCell>
-                                            <TableCell>{it.email}</TableCell>
-                                            <TableCell>{it.address}</TableCell>
-                                            <TableCell>{`${createdTime.toLocaleDateString()} ${createdTime.toLocaleTimeString()}`}</TableCell>
-                                        </TableRow>
-                                    )
-                                })
-                            }
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <AppTable data={users} keysToShow={["enabled", "username", "email", "createdAt", "address"]}/>
             </Paper>
 
             <Button variant={"outlined"} color={"primary"} onClick={logout} sx={{m: 2}}>Logout</Button>
