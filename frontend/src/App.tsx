@@ -31,14 +31,14 @@ function App() {
         },
         [mode],
     );
-    const {accessToken} = useAuth()
+    const {authenticated} = useAuth()
 
     return (
         <React.Fragment>
             <CssBaseline/>
             <ColorModeContext.Provider value={colorMode}>
                 <ThemeProvider theme={theme}>
-                    {accessToken
+                    {authenticated
                         ? <AppUsers/>
                         : <AppLogin toggleColorMode={colorMode.toggleColorMode}/>
                     }

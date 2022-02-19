@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {Box, Button, Paper} from "@mui/material";
-import {useAuth} from "../context/AuthContext";
+import {api, useAuth} from "../context/AuthContext";
 import AppTable from "./AppTable";
 
 interface IUser {
@@ -13,7 +13,7 @@ interface IUser {
 
 const AppUsers = () => {
     const [users, setUsers] = useState<IUser[]>([]);
-    const {api, logout} = useAuth()
+    const {logout} = useAuth()
 
     useEffect(() => {
             (async () => {
@@ -25,7 +25,7 @@ const AppUsers = () => {
                 }
             })()
         },
-        [api]
+        []
     )
 
     return (
