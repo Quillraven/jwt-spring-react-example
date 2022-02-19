@@ -36,7 +36,6 @@ const AppLogin = (props: AppLoginProps) => {
         }
 
         login(username, pwd)
-            .then(() => setLoginError(""))
             .catch(error => {
                 if (error?.response?.status === 403) {
                     // login forbidden -> most likely wrong credentials
