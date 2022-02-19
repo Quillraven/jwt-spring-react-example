@@ -98,8 +98,8 @@ const AuthProvider: React.FC = ({children}) => {
 
     const logout = () => {
         // clear tokens of local storage
-        setAccessToken(undefined)
         setRefreshToken(undefined)
+        setAccessToken(undefined)
     }
 
     return (
