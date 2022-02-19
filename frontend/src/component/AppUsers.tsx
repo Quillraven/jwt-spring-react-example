@@ -27,7 +27,7 @@ const AppUsers = () => {
 
     useEffect(() => {
             (async () => {
-                const response = await api.get("/users?page=0&pageSize=50")
+                const response = await api.get("/users?page=0&size=50")
                 if (response.data?.content) {
                     const userData: IUser[] = response.data.content
                     userData.forEach(it => it.createdAt = new Date(it.createdAt))

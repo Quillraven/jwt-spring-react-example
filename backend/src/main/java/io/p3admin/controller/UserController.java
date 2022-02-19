@@ -6,7 +6,11 @@ import io.p3admin.model.domain.User;
 import io.p3admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,18 +22,18 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/users")
-    Page<User> getUsers(@RequestParam int page, @RequestParam int pageSize) {
-        return userService.getUsers(page, pageSize);
+    Page<User> getUsers(Pageable pageable) {
+        return userService.getUsers(pageable);
     }
 
     @GetMapping("/roles")
-    Page<Role> getRoles(@RequestParam int page, @RequestParam int pageSize) {
-        return userService.getRoles(page, pageSize);
+    Page<Role> getRoles(Pageable pageable) {
+        return userService.getRoles(pageable);
     }
 
     @GetMapping("/permissions")
-    Page<Permission> getPermissions(@RequestParam int page, @RequestParam int pageSize) {
-        return userService.getPermissions(page, pageSize);
+    Page<Permission> getPermissions(Pageable pageable) {
+        return userService.getPermissions(pageable);
     }
 
     @PostMapping("/refresh-token")

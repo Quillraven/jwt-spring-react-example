@@ -12,7 +12,7 @@ import io.p3admin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -92,9 +92,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Page<User> getUsers(int page, int pageSize) {
-        log.debug("Getting users of page {} with size {}", page, pageSize);
-        return userRepo.findAll(PageRequest.of(page, pageSize));
+    public Page<User> getUsers(Pageable pageable) {
+        log.debug("Getting users with pageable {}", pageable);
+        return userRepo.findAll(pageable);
     }
 
     @Override
@@ -124,9 +124,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Page<Role> getRoles(int page, int pageSize) {
-        log.debug("Getting roles of page {} with size {}", page, pageSize);
-        return roleRepo.findAll(PageRequest.of(page, pageSize));
+    public Page<Role> getRoles(Pageable pageable) {
+        log.debug("Getting roles with pageable {}", pageable);
+        return roleRepo.findAll(pageable);
     }
 
     @Override
@@ -136,9 +136,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Page<Permission> getPermissions(int page, int pageSize) {
-        log.debug("Getting permissions of page {} with size {}", page, pageSize);
-        return permissionRepo.findAll(PageRequest.of(page, pageSize));
+    public Page<Permission> getPermissions(Pageable pageable) {
+        log.debug("Getting permissions with pageable {}", pageable);
+        return permissionRepo.findAll(pageable);
     }
 
     @Override
