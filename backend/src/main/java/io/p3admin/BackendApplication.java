@@ -1,6 +1,5 @@
 package io.p3admin;
 
-import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
 import io.p3admin.service.UserService;
@@ -10,43 +9,31 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.util.Set;
-
 @SpringBootApplication
 @Slf4j
 public class BackendApplication {
     @Bean
-    public CommandLineRunner createDefaultPermissionsAndUsers(UserService userService) {
+    public CommandLineRunner createDefaultRolesAndUsers(UserService userService) {
         return args -> {
             if (userService.getUserOrNull("admin") != null) {
                 // defaults already created -> do nothing
-                log.info("Default permissions and users already created");
+                log.info("Default roles and users already created");
                 return;
             }
 
-            log.info("Creating default permissions and users");
-            var permissionUserRead = new Permission("User", Permission.Privilege.READ);
-            var permissionUserWrite = new Permission("User", Permission.Privilege.WRITE);
-            userService.savePermission(permissionUserRead);
-            userService.savePermission(permissionUserWrite);
+            log.info("Creating default roles and users");
+            for (Role.RoleType roleType : Role.RoleType.values()) {
+                userService.saveRole(new Role(roleType));
+            }
 
-            var roleAdmin = new Role("Admin", Set.of(permissionUserRead, permissionUserWrite));
-            var roleUser = new Role("User", Set.of(permissionUserRead));
-            userService.saveRole(roleAdmin);
-            userService.saveRole(roleUser);
+            userService.saveUser(new User("admin", "admin", "admin@p3admin.at"));
+            userService.addRoleToUser("admin", Role.RoleType.ADMIN);
 
-            userService.saveUser(new User(
-                    "klausm",
-                    "klausm",
-                    "simonklausner@gmail.com",
-                    Set.of(roleUser)
-            ));
-            userService.saveUser(new User(
-                    "admin",
-                    "admin",
-                    "p3admin@noreply.com",
-                    Set.of(roleAdmin, roleUser)
-            ));
+            userService.saveUser(new User("therapist", "therapist", "therapist@p3admin.at"));
+            userService.addRoleToUser("therapist", Role.RoleType.THERAPIST);
+
+            userService.saveUser(new User("secretary", "secretary", "secretary@p3admin.at"));
+            userService.addRoleToUser("secretary", Role.RoleType.SECRETARY);
         };
     }
 

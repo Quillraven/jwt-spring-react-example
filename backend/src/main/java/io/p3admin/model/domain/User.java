@@ -43,11 +43,10 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, String email, Set<Role> roles) {
+    public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.roles = roles;
     }
 
     public Long getId() {
@@ -121,17 +120,8 @@ public class User {
     @JsonIgnore
     public String[] getSpringRoles() {
         return roles.stream()
-                .map(Role::getName)
-                .toArray(String[]::new);
-    }
-
-    @JsonIgnore
-    public String[] getSpringAuthorities() {
-        return roles.stream()
-                .map(Role::getPermissions)
-                .flatMap(Set::stream)
-                .distinct()
-                .map(Permission::getSpringAuthority)
+                .map(Role::getType)
+                .map(Role.RoleType::name)
                 .toArray(String[]::new);
     }
 

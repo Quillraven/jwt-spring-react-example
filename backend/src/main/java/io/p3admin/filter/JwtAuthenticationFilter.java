@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public static void createAndAddJwtTokens(
             String username,
-            List<String> authorities,
+            List<String> roles,
             Algorithm algorithm,
             ObjectMapper objectMapper,
             HttpServletRequest request,
@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_DURATION))
                 .withIssuer(request.getRequestURL().toString())
-                .withClaim(JWT_CLAIM_KEY_ROLES, authorities)
+                .withClaim(JWT_CLAIM_KEY_ROLES, roles)
                 .sign(algorithm);
 
         var refreshToken = JWT.create()

@@ -3,10 +3,8 @@ package io.p3admin.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
-import io.p3admin.repository.PermissionRepository;
 import io.p3admin.repository.RoleRepository;
 import io.p3admin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepo;
     private final RoleRepository roleRepo;
-    private final PermissionRepository permissionRepo;
     private final PasswordEncoder pwdEncoder;
     private final Algorithm algorithm;
     private final ObjectMapper objectMapper;
@@ -56,7 +53,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         .password(user.getPassword())
                         .disabled(!user.isEnabled())
                         .roles(user.getSpringRoles())
-                        .authorities(user.getSpringAuthorities())
                         .build()
                 )
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User " + username + " not found"));
@@ -80,7 +76,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             createAndAddJwtTokens(
                     user.getUsername(),
-                    List.of(user.getSpringAuthorities()),
+                    List.of(user.getSpringRoles()),
                     algorithm,
                     objectMapper,
                     request,
@@ -136,44 +132,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Page<Permission> getPermissions(Pageable pageable) {
-        log.debug("Getting permissions with pageable {}", pageable);
-        return permissionRepo.findAll(pageable);
-    }
-
-    @Override
-    public Permission savePermission(Permission permission) {
-        log.debug("Saving permission: {}", permission);
-        return permissionRepo.save(permission);
-    }
-
-    @Override
-    public void addRoleToUser(String username, String roleName) {
-        log.debug("Adding role {} to user {}", roleName, username);
-        if (username == null || username.isBlank() || roleName == null || roleName.isBlank()) {
-            throw new ResponseStatusException(BAD_REQUEST, "username and roleName must be provided");
+    public void addRoleToUser(String username, Role.RoleType roleType) {
+        log.debug("Adding role {} to user {}", roleType, username);
+        if (username == null || username.isBlank() || roleType == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "username and roleType must be provided");
         }
 
         var user = getUser(username);
-        var role = roleRepo.findByName(roleName)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role " + roleName + " not found"));
+        var role = roleRepo.findByType(roleType)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role " + roleType + " not found"));
 
         user.getRoles().add(role);
-    }
-
-    @Override
-    public void addPermissionToRole(String roleName, String domainObject, Permission.Privilege privilege) {
-        log.debug("Adding privilege {} for domain {} to role {}", privilege, domainObject, roleName);
-        if (roleName == null || roleName.isBlank() || domainObject == null || domainObject.isBlank() || privilege == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "roleName, domainObject and privilege must be provided");
-        }
-
-        var role = roleRepo.findByName(roleName)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Role " + roleName + " not found"));
-
-        var permission = permissionRepo.findByDomainObjectAndPrivilege(domainObject, privilege)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Permission " + domainObject + ":" + privilege + " not found"));
-
-        role.getPermissions().add(permission);
     }
 }

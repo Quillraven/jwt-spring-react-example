@@ -14,27 +14,25 @@ everything automatically:
 - create database (p3admin_db)
 - bind container to port 3306
 
-When you run the `BackendApplication` then a `CommandLineRunner` is executed that creates some default permissions,
+When you run the `BackendApplication` then a `CommandLineRunner` is executed that creates some default
 roles and users:
 
-- Permissions
-    - User READ
-    - User WRITE
 - Roles
     - Admin
-    - User
+    - Therapist
+    - Secretary
 - Users
     - admin/admin
-    - klausm/klausm
+    - therapist/therapist
+    - secretary/secretary
 
 The `configuration` package contains the essentials for the JWT security setup. In the `SecurityCfg` class you will
-find `HttpSecurity` configuration which blocks any REST calls to `/api/v1/roles` or `/api/v1/permissions` if a user does
-not have the User READ permission.
+find `HttpSecurity` configuration which blocks any REST calls to `/api/v1/roles` if a user does
+not have the ADMIN role.
 
 ```Java
 .antMatchers("/api/v1/refresh-token").permitAll()
-.antMatchers("/api/v1/roles").hasAuthority(getSpringAuthority("User",WRITE))
-.antMatchers("/api/v1/permissions").hasAuthority(getSpringAuthority("User",WRITE))
+.antMatchers("/api/v1/roles").hasRole(Role.RoleType.ADMIN.name())
 ```
 
 The `filter` package contains the JWT specifics for any request made to the backend.
@@ -43,7 +41,7 @@ The `JwtAuthenticationFilter` is responsible for the authentication via username
 credentials then an AUTH and REFRESH token is created and returned in the HttpResponse.
 
 The `JwtAuthorizationFilter` is then used for each future request to validate the passed JWT Token and to inform Spring
-about the authorities (=permissions) that this request has.
+about the authorities (=roles) that this request has.
 
 If the AUTH token is expired then a user can refresh it by using the `/refresh-token` endpoint of the `UserController`.
 
@@ -63,7 +61,7 @@ curl -X POST --location "http://localhost:8080/api/v1/refresh-token" \
 curl -X GET --location "http://localhost:8080/api/v1/users?page=0&pageSize=50" \
     -H "Authorization: Bearer %JWT_AUTH_TOKEN%"
     
-### getRoles - this will not work for the user klausm because of missing permissions
+### getRoles - this will not work for the user secretary because of missing admin role
 curl -X GET --location "http://localhost:8080/api/v1/roles?page=0&pageSize=50" \
     -H "Authorization: Bearer %JWT_AUTH_TOKEN%"
 ```

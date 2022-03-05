@@ -1,6 +1,5 @@
 package io.p3admin.service;
 
-import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
 import org.springframework.data.domain.Page;
@@ -25,11 +24,5 @@ public interface UserService extends UserDetailsService {
 
     Role saveRole(Role role);
 
-    Page<Permission> getPermissions(Pageable pageable);
-
-    Permission savePermission(Permission permission);
-
-    void addRoleToUser(String username, String roleName);
-
-    void addPermissionToRole(String roleName, String domainObject, Permission.Privilege privilege);
+    void addRoleToUser(String username, Role.RoleType roleType);
 }

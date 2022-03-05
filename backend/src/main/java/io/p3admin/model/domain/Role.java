@@ -1,30 +1,28 @@
 package io.p3admin.model.domain;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 public class Role {
+
+    public enum RoleType {
+        ADMIN, THERAPIST, SECRETARY
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(unique = true, nullable = false)
-    @NotBlank
-    private String name;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Permission> permissions = new HashSet<>();
+    @Enumerated(value = EnumType.STRING)
+    private RoleType type;
 
     public Role() {
     }
 
-    public Role(String name, Set<Permission> permissions) {
-        this.name = name;
-        this.permissions = permissions;
+    public Role(RoleType type) {
+        this.type = type;
     }
 
     public Long getId() {
@@ -35,20 +33,12 @@ public class Role {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public RoleType getType() {
+        return type;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Permission> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
+    public void setType(RoleType type) {
+        this.type = type;
     }
 
     @Override
@@ -56,19 +46,19 @@ public class Role {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Role role = (Role) o;
-        return name.equals(role.name);
+        return type == role.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(type);
     }
 
     @Override
     public String toString() {
         return "Role{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", type=" + type +
                 '}';
     }
 }

@@ -1,6 +1,5 @@
 package io.p3admin.controller;
 
-import io.p3admin.model.domain.Permission;
 import io.p3admin.model.domain.Role;
 import io.p3admin.model.domain.User;
 import io.p3admin.service.UserService;
@@ -29,11 +28,6 @@ public class UserController {
     @GetMapping("/roles")
     Page<Role> getRoles(Pageable pageable) {
         return userService.getRoles(pageable);
-    }
-
-    @GetMapping("/permissions")
-    Page<Permission> getPermissions(Pageable pageable) {
-        return userService.getPermissions(pageable);
     }
 
     @PostMapping("/refresh-token")

@@ -4,6 +4,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.p3admin.filter.JwtAuthenticationFilter;
 import io.p3admin.filter.JwtAuthorizationFilter;
+import io.p3admin.model.domain.Role;
 import io.p3admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import static io.p3admin.model.domain.Permission.Privilege.WRITE;
-import static io.p3admin.model.domain.Permission.getSpringAuthority;
 
 @Configuration
 @EnableWebSecurity
@@ -68,8 +66,7 @@ public class SecurityCfg extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/v1/refresh-token").permitAll()
-                .antMatchers("/api/v1/roles").hasAuthority(getSpringAuthority("User", WRITE))
-                .antMatchers("/api/v1/permissions").hasAuthority(getSpringAuthority("User", WRITE))
+                .antMatchers("/api/v1/roles").hasRole(Role.RoleType.ADMIN.name())
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(authenticationFilter)
