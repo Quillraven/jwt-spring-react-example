@@ -1,5 +1,7 @@
 package io.p3admin.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.Objects;
@@ -10,6 +12,8 @@ public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    private boolean active;
 
     @Column(unique = true, nullable = false, name = "social_security_number")
     private String socialSecurityNumber;
@@ -23,7 +27,8 @@ public class Patient {
     @Email
     private String email;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Appointment> appointments;
 
     public Patient() {
@@ -35,6 +40,14 @@ public class Patient {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String getSocialSecurityNumber() {
@@ -94,6 +107,7 @@ public class Patient {
     public String toString() {
         return "Patient{" +
                 "id=" + id +
+                ", active=" + active +
                 ", socialSecurityNumber='" + socialSecurityNumber + '\'' +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
