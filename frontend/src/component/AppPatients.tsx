@@ -7,6 +7,7 @@ import AppPatientDialog from './AppPatientDialog';
 const AppPatients = () => {
   const [rows, setRows] = useState<IPatient[]>([])
   const [size, setSize] = useState(50)
+  const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
   const [error, setError] = useState('')
   const [showNewPatient, setShowNewPatient] = useState(false)
@@ -77,9 +78,10 @@ const AppPatients = () => {
     setTotal(prev => prev + 1)
   }
 
-  const onPageChange = async (newPage:number) => {
-    const pageable = await patientService.getPatients(newPage)
-    setSize(pageable.size)
+  const onPageChange = async (newPage:number, pageSize:number = size) => {
+    setPage(newPage)
+    setSize(pageSize)
+    const pageable = await patientService.getPatients(newPage, pageSize)
     setRows(pageable.content)
     setTotal(pageable.totalElements)
   }
@@ -113,8 +115,8 @@ const AppPatients = () => {
                 paginationMode={'server'}
                 experimentalFeatures={{ preventCommitWhileValidating: true }}
                 onCellEditCommit={onCellEditCommit}
-                onPageSizeChange={(newSize) => setSize(newSize)}
-                onPageChange={(newPage) => onPageChange(newPage)}
+                onPageSizeChange={(newSize) => onPageChange(page, newSize)}
+                onPageChange={(newPage) => onPageChange(newPage, size)}
             />
             {
                 error &&
