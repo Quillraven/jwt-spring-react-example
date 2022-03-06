@@ -9,6 +9,7 @@ This is an example application showing how to use JWT authentication within a Re
 This application uses [MariaDB](https://mariadb.org/) as a database. To run it you can use
 [Docker](https://www.docker.com/). Run the `docker-compose.yml` file in the root folder which will setup
 everything automatically:
+
 - download mariadb image
 - setup root password of mysql admin user (root)
 - create database (p3admin_db)
