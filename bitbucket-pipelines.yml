@@ -1,0 +1,8 @@
+image: gradle:6.6.0
+
+pipelines:
+  default:
+    - step:
+        name: Build and Test
+        script:
+          - bash ./backend/gradlew clean build
