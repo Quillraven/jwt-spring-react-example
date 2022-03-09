@@ -5,5 +5,5 @@ pipelines:
     - step:
         name: Build and Test
         script:
-          - bash cd backend
+          - bash cd ./backend
           - bash gradlew clean build
