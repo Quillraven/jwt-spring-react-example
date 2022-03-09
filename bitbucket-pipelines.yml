@@ -1,9 +1,17 @@
 image: gradle:7.3.3
 
 pipelines:
-  default:
-    - step:
-        name: Build and Test
-        script:
-          - cd backend
-          - bash gradlew clean build
+  pull-requests:
+    '**':
+      - step:
+          name: Build and Test
+          script:
+            - cd backend
+            - bash gradlew clean build
+  branches:
+    'master':
+      - step:
+          name: Build and Test
+          script:
+            - cd backend
+            - bash gradlew clean build
