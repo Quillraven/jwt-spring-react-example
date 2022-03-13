@@ -74,7 +74,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 response.getOutputStream(),
                 Map.ofEntries(
                         entry("access-token", accessToken),
-                        entry("refresh-token", refreshToken)
+                        entry("refresh-token", refreshToken),
+                        entry("roles", roles)
                 )
         );
     }

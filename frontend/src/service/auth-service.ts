@@ -4,21 +4,39 @@ const STORAGE_KEY_USER = 'p3admin-user'
 export const EVENT_LOGOUT = 'logout'
 export const EVENT_LOGIN = 'login'
 
-export interface IUser {
-    accessToken: String
-    refreshToken: String
+export enum Role {
+  Admin = 'ROLE_ADMIN',
+  Therapist = 'ROLE_THERAPIST',
+  Secretary = 'ROLE_SECRETARY'
 }
 
-const storeUser = (data: any): IUser => {
-  const user: IUser = {
-    accessToken: data['access-token'],
-    refreshToken: data['refresh-token']
+export class User {
+  readonly accessToken: string
+  readonly refreshToken: string
+  readonly roles: Role[]
+
+  constructor (
+    accessToken: string,
+    refreshToken: string,
+    roles: Role[]
+  ) {
+    this.accessToken = accessToken
+    this.refreshToken = refreshToken
+    this.roles = roles ?? []
   }
+
+  hasAnyRole (...roles: Role[]): boolean {
+    return this.roles.some(role => roles.includes(role))
+  }
+}
+
+const storeUser = (data: any): User => {
+  const user = new User(data['access-token'], data['refresh-token'], data.roles)
   localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user))
   return user
 }
 
-const login = async (username: string, password: string): Promise<IUser> => {
+const login = async (username: string, password: string): Promise<User> => {
   const params = new URLSearchParams()
   params.append('username', username)
   params.append('password', password)
@@ -38,7 +56,7 @@ const login = async (username: string, password: string): Promise<IUser> => {
   return Promise.reject(new Error('Response from server is not a valid user'))
 }
 
-const refreshToken = async (): Promise<IUser> => {
+const refreshToken = async (): Promise<User> => {
   const token = currentUser()?.refreshToken
   if (!token) {
     return Promise.reject(new Error('No refresh token available'))
@@ -62,7 +80,7 @@ const logout = () => {
   document.dispatchEvent(new CustomEvent(EVENT_LOGOUT))
 }
 
-const currentUser = (): IUser | null => {
+const currentUser = (): User | null => {
   const user = localStorage.getItem(STORAGE_KEY_USER)
   return user ? JSON.parse(user) : null
 }
