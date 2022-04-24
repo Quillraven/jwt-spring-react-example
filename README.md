@@ -76,9 +76,9 @@ It has a Login page where you can change the theme between light and dark. Also,
 **Forgot Password?** is not implemented.
 
 After a successful login it fetches the users of the backend with axios. Axios is configured to use interceptors to
-automatically refresh the JWT Token whenever necessary and to provide the auth token for each request. Also, the tokens
-are stored in the `localStorage` until the user logs out or the token cannot be refreshed anymore. The code can be found
-in the `AuthContext.tsx`.
+automatically refresh the JWT Token whenever necessary and to provide the auth token for each request. Also, the user with its tokens and roles
+is stored in the `localStorage` until the user logs out or the token cannot be refreshed anymore. The code can be found
+in the `api.ts` and `auth-service.ts`.
 
 ![image](https://user-images.githubusercontent.com/93260/154648237-983a086c-b720-47bd-bf55-e1f731709baa.png)
 ![image](https://user-images.githubusercontent.com/93260/154648413-7fa87457-a059-4962-906a-c3c4582f9f25.png)
